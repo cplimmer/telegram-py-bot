@@ -28,6 +28,7 @@ def send_picture(chat_id, photo, reply_id):
 def get_time(timeS):
     #get time in seconds and convert to minutes if over 60
     if timeS > 59:
+        timeM = 0
         while timeS > 59:
             timeS = timeS - 60
             timeM += 1
@@ -39,6 +40,7 @@ def get_time(timeS):
         timeS = None
     #get time in minutes and conver to hours if over 60
     if timeM > 59:
+        timeH = 0
         while timeM > 59:
             timeM = timeM - 60
             timeH += 1
@@ -50,6 +52,7 @@ def get_time(timeS):
         timeM = None
     #get time in hours and convert to days if over 24
     if timeH > 23:
+        timeD = 0
         while timeH > 23:
             timeH = timeH - 23
             timeD += 1
