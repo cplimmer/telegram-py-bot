@@ -16,31 +16,34 @@ def send_message(text, chat_id, reply_id):
         url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
     else:
         url = URL + "sendMessage?text={}&chat_id={}&reply_to_message_id={}".format(text, chat_id, reply_id)
-    get_url(url)
+    api_call(url)
 
 def send_picture(chat_id, photo, reply_id):
     if reply_id == None:
         url = URL + "sendPhoto?photo={}&chat_id={}".format(photo, chat_id)
     else:
         url = URL + "sendPhoto?photo={}&chat_id={}&reply_to_message_id={}".format(photo, chat_id, reply_id)
-    get_url(url)
+    api_call(url)
 
 def get_time(timeS):
+
+    timeM = None
+    timeH = None
+    timeD = None
+
     #get time in seconds and convert to minutes if over 60
     if timeS > 59:
-        timeM = 0
         while timeS > 59:
             timeS = timeS - 60
             timeM += 1
     if timeS > 1:
-        timeS = "{} seconds ".format(timeS)
-    elif time == 1:
-        timeS = "{} second ".format(timeS)
+        timeS = "{} seconds".format(timeS)
+    elif timeS == 1:
+        timeS = "{} second".format(timeS)
     elif timeS < 1:
         timeS = None
     #get time in minutes and conver to hours if over 60
     if timeM > 59:
-        timeH = 0
         while timeM > 59:
             timeM = timeM - 60
             timeH += 1
@@ -52,7 +55,6 @@ def get_time(timeS):
         timeM = None
     #get time in hours and convert to days if over 24
     if timeH > 23:
-        timeD = 0
         while timeH > 23:
             timeH = timeH - 23
             timeD += 1
@@ -76,5 +78,13 @@ def get_time(timeS):
     elif timeH != None and timeD != None and timeS == None and timeM == None:
         timeH = "and {}".format(timeH)
 
-    time = timeD + timeH + timeM + timeS
+    if timeD != None:
+        time = time + timeD
+    if timeH != None:
+        time = time + timeH
+    if timeM != None:
+        time = time + timeM
+    if timeS != None:
+        time = time + timeS
+
     return time
