@@ -11,15 +11,15 @@ def api_call(url):
     content = response.content.decode("utf8")
     return content
 
-def send_message(text, chat_id, reply_id):
-    if reply_id == None:
+def send_message(text, chat_id, reply_id=0):
+    if reply_id == 0:
         url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
     else:
         url = URL + "sendMessage?text={}&chat_id={}&reply_to_message_id={}".format(text, chat_id, reply_id)
     api_call(url)
 
-def send_picture(chat_id, photo, reply_id):
-    if reply_id == None:
+def send_picture(chat_id, photo, reply_id=0):
+    if reply_id == 0:
         url = URL + "sendPhoto?photo={}&chat_id={}".format(photo, chat_id)
     else:
         url = URL + "sendPhoto?photo={}&chat_id={}&reply_to_message_id={}".format(photo, chat_id, reply_id)
@@ -96,3 +96,5 @@ def get_time(timeS):
         time = time + timeS
 
     return time
+    
+def get_picture()
