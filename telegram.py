@@ -30,9 +30,11 @@ def get_time(timeS):
     timeM = None
     timeH = None
     timeD = None
+    time = ""
 
     #get time in seconds and convert to minutes if over 60
     if timeS > 59:
+        timeM = 0
         while timeS > 59:
             timeS = timeS - 60
             timeM += 1
@@ -44,6 +46,7 @@ def get_time(timeS):
         timeS = None
     #get time in minutes and conver to hours if over 60
     if timeM > 59:
+        timeH = 0
         while timeM > 59:
             timeM = timeM - 60
             timeH += 1
@@ -55,8 +58,9 @@ def get_time(timeS):
         timeM = None
     #get time in hours and convert to days if over 24
     if timeH > 23:
+        timeD = 0
         while timeH > 23:
-            timeH = timeH - 23
+            timeH = timeH - 24
             timeD += 1
     if timeH > 1:
         timeH = "{} hours ".format(timeH)
@@ -64,15 +68,18 @@ def get_time(timeS):
         timeH = "{} hour ".format(timeH)
     elif timeH < 1:
         timeH = None
+        
     if timeD > 1:
-        timeD = "{} hours ".format(timeD)
+        timeD = "{} days ".format(timeD)
     elif timeD == 1:
-        timeD = "{} hour ".format(timeD)
+        timeD = "{} day ".format(timeD)
     elif timeD < 1:
         timeD = None
 
-    if timeS != None and timeM != None or timeH != None or timeD != None:
-        timeS = "and {}".format(timeS)
+
+    if timeS != None:
+        if timeM != None or timeH != None or timeD != None:
+            timeS = "and {}".format(timeS)
     elif timeM != None and timeH != None or timeD != None and timeS == None:
         timeM = "and {}".format(timeM)
     elif timeH != None and timeD != None and timeS == None and timeM == None:
@@ -84,6 +91,7 @@ def get_time(timeS):
         time = time + timeH
     if timeM != None:
         time = time + timeM
+        
     if timeS != None:
         time = time + timeS
 
