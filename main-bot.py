@@ -1,6 +1,6 @@
 import boto3
 import json
-
+from telegram import *
 
 def respond(err, res=None):
     return {
@@ -13,8 +13,25 @@ def respond(err, res=None):
 
 
 def lambda_handler(event, context):
-    params = parse_qs(event['body'])
     
+    JD = "GDude"
+    delay = 1
+    
+    chatid = event['body']['message']['chat']['id']
+    text = event['body']['message']['text']
+    username = event['body']['message']['from']['username']
+    messagedate = event['body']['message']['date']
+    
+    if event['body']['message']['reply_to_message']:
+        replytime = event['body']['message']['reply_to_message']['date']
+        if username == JD:
+            dif = messagedate - replytime
+            if dif / 60 > delay:
+                dif = get_time(dif)
+                
+        
+
+
     if token != expected_token:
         logger.error("Request token (%s) does not match expected", token)
         return respond(Exception('Invalid request token'))
