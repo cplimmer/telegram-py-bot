@@ -1,10 +1,13 @@
 import json 
 import requests
 import boto3
+import urllib
 
 APIKEY = open("apikey").read()
 
+
 URL = "https://api.telegram.org/bot{}/".format(APIKEY)
+
 
 def api_call(url):
     response = requests.get(url)
@@ -97,4 +100,13 @@ def get_time(timeS):
 
     return time
     
-def get_picture()
+def get_picture(query, type):
+    imgurl = "https://api.imgur.com/3/"
+    clientid = open("clientid").read()
+    query = urllib.quote_plus(query)
+    if type == "random":
+        print(type)
+    elif type == "search":
+        print(type)
+        
+    
