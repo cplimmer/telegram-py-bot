@@ -2,6 +2,8 @@ import json
 import requests
 import boto3
 import urllib
+import random
+
 
 APIKEY = open("apikey").read()
 
@@ -14,11 +16,8 @@ def api_call(url):
     content = response.content.decode("utf8")
     return content
 
-def send_message(text, chat_id, reply_id=0):
-    if reply_id == 0:
-        url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
-    else:
-        url = URL + "sendMessage?text={}&chat_id={}&reply_to_message_id={}".format(text, chat_id, reply_id)
+def send_message(text, chat_id):
+    url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
     api_call(url)
 
 def send_picture(chat_id, photo, reply_id=0):
@@ -101,12 +100,23 @@ def get_time(timeS):
     return time
     
 def get_picture(query, type):
+    #base url variable.
     imgurl = "https://api.imgur.com/3/"
+    #import api key.
     clientid = open("clientid").read()
+    #convert query for url format.
     query = urllib.quote_plus(query)
+    
+    #check which type of query
     if type == "random":
-        print(type)
+        imgurl = imgurl + "gallery/r/" + query
     elif type == "search":
-        print(type)
+        imgurl = imgurl + "gallery/search/?q=" + query
+    else:
+        return "Invalid Type"
         
+    
+    data = requests.get(imgurl, headers={"Authorization" : "Client-ID {}".format(clientid)}).json()
+    value = random.choice(data["data"])
+    return json.dumps(value["link"]).replace('"', '')
     
