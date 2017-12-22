@@ -1,9 +1,8 @@
-import json 
-import requests
-import boto3
 import urllib.parse
 import random
-
+import json
+import requests
+import boto3
 
 APIKEY = open("apikey").read()
 
@@ -12,26 +11,27 @@ URL = "https://api.telegram.org/bot{}/".format(APIKEY)
 
 
 def api_call(url):
+    """Taking telegrambot URL and making API call using requests"""
     response = requests.get(url)
     content = response.content.decode("utf8")
     return content
 
 def send_message(text, chat_id, reply_id=0):
-    if reply_id == 0:
-        url = URL + "sendMessage?text={}&chat_id={}&parse_mode=html".format(text, chat_id)
-    else:
-        url = URL + "sendMessage?text={}&chat_id={}&reply_to_message_id={}&parse_mode=html".format(text, chat_id, reply_id)
+    """sending telegram message to use with text and chat_id as required params"""
+    url = URL + "sendMessage?text={}&chat_id={}&parse_mode=html".format(text, chat_id)
+    if reply_id != 0:
+        url = url + "&reply_to_message_id={}".format(reply_id)
     api_call(url)
 
 def send_picture(photo, chat_id, reply_id=0):
-    if reply_id == 0:
-        url = URL + "sendPhoto?photo={}&chat_id={}".format(photo, chat_id)
-    else:
-        url = URL + "sendPhoto?photo={}&chat_id={}&reply_to_message_id={}".format(photo, chat_id, reply_id)
+    """sending telegram photo to use with photourl and chat_id as required params"""
+    url = URL + "sendPhoto?photo={}&chat_id={}".format(photo, chat_id)
+    if reply_id != 0:
+        url = url + "&reply_to_message_id={}".format(reply_id)
     api_call(url)
 
 def get_time(timeS):
-
+    """takes time in seconds and converts to string format to send via telegram"""
     timeM = 0
     timeH = 0
     timeD = 0
@@ -96,12 +96,12 @@ def get_time(timeS):
         time = time + timeH
     if timeM != None:
         time = time + timeM
-        
+  
     if timeS != None:
         time = time + timeS
 
     return time
-    
+
 def get_picture(query, type):
     #base url variable.
     imgurl = "https://api.imgur.com/3/"

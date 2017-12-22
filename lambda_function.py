@@ -39,7 +39,7 @@ def lambda_handler(event, context):
             #Grabs the joke and formats with the Get_time function then sends back to the chatroom.
                 print("JD and time delay trigger hit")
                 reply = get_joke().replace("\n", "").format(get_time(dif))
-                return respond(send_message(reply, chatid))
+                return respond(send_message(reply, chatid, reply_id=messageid))
             print("JD Trigger hit but time delay trigger missed")
     except:
         pass
