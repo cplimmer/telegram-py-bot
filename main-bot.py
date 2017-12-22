@@ -23,18 +23,21 @@ def lambda_handler(event, context):
     messagedate = event['body']['message']['date']
     
     if event['body']['message']['reply_to_message']:
-        replytime = event['body']['message']['reply_to_message']['date']
         if username == JD:
+            replytime = event['body']['message']['reply_to_message']['date']
             dif = messagedate - replytime
             if dif / 60 > delay:
-                dif = get_time(dif)
+                reply = get_joke().replace("\n", "").format(get_time(dif))
+                #dif = get_time(dif)
+                respond(None, send_message(reply, chatid))
+
                 
         
 
 
-    if token != expected_token:
-        logger.error("Request token (%s) does not match expected", token)
-        return respond(Exception('Invalid request token'))
+    #if token != expected_token:
+    #    logger.error("Request token (%s) does not match expected", token)
+    #    return respond(Exception('Invalid request token'))
 
-    return respond(None, "%s invoked %s in %s with the following text: %s" % (user, command, channel, command_text))
+    return respond(None, "Nothing triggered ending lambda call.")
     

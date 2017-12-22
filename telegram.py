@@ -41,9 +41,9 @@ def get_time(timeS):
             timeS = timeS - 60
             timeM += 1
     if timeS > 1:
-        timeS = "{} seconds".format(timeS)
+        timeS = "{} seconds ".format(timeS)
     elif timeS == 1:
-        timeS = "{} second".format(timeS)
+        timeS = "{} second ".format(timeS)
     elif timeS < 1:
         timeS = None
     #get time in minutes and conver to hours if over 60
@@ -119,4 +119,9 @@ def get_picture(query, type):
     data = requests.get(imgurl, headers={"Authorization" : "Client-ID {}".format(clientid)}).json()
     value = random.choice(data["data"])
     return json.dumps(value["link"]).replace('"', '')
+    
+def get_joke():
+    jokes = open("jd.txt", "r")
+    jokes = jokes.readlines()
+    return random.choice(jokes)
     
