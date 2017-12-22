@@ -2,6 +2,18 @@ import urllib.parse
 import random
 import json
 import requests
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+ACCESS_KEY = open("ACCESS_KEY").read()
+SECRET_KEY = open("SECRET_KEY").read()
+
+
+client = boto3.client(
+    'dynamodb',
+    aws_access_key_id=ACCESS_KEY,
+    aws_secret_access_key=SECRET_KEY,
+)
 
 APIKEY = open("apikey").read()
 
@@ -72,7 +84,7 @@ def get_time(timeS):
         timeH = "{} hour ".format(timeH)
     elif timeH < 1:
         timeH = None
-        
+
     if timeD > 1:
         timeD = "{} days ".format(timeD)
     elif timeD == 1:
@@ -95,7 +107,7 @@ def get_time(timeS):
         time = time + timeH
     if timeM != None:
         time = time + timeM
-  
+
     if timeS != None:
         time = time + timeS
 
@@ -108,7 +120,7 @@ def get_picture(query, type):
     clientid = open("clientid").read()
     #convert query for url format.
     query = urllib.parse.quote(query)
-    
+
     #check which type of query
     if type == "random":
         imgurl = imgurl + "gallery/r/" + query
@@ -116,8 +128,8 @@ def get_picture(query, type):
         imgurl = imgurl + "gallery/search/?q=" + query
     else:
         errcode = "1. Invalid Search Type"
-        return errcode  
-    
+        return errcode
+
     data = requests.get(imgurl, headers={"Authorization" : "Client-ID {}".format(clientid)}).json()
     try:
         value = random.choice(data["data"])
@@ -125,10 +137,18 @@ def get_picture(query, type):
     except:
         errcode = "1. Unable to find image in {}, please try again.".format(type)
         return errcode
-    
-    
+
 def get_joke():
     jokes = open("jd.txt", "r")
     jokes = jokes.readlines()
     return random.choice(jokes)
-    
+
+def search_db(name):
+    """search dynamodb for any records with the name that matches, grab random one and return"""
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    table = dynamodb.Table('pictures')
+    response = table.query(
+        KeyConditionExpression=Key('name').eq(name)
+    )
+    url = random.choice(response['Items'])
+    return url['url']

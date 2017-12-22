@@ -1,5 +1,4 @@
 import json
-import boto3
 from telegram import *
 
 
@@ -55,6 +54,7 @@ def lambda_handler(event, context):
             return respond(send_message(reply, chatid))
         else:
             return respond(send_picture(get_picture(string, "random"), chatid))
+
     elif text.startswith('/search'):
         print("search trigger hit")
         string = text[8:]
@@ -66,5 +66,15 @@ def lambda_handler(event, context):
         else:
             return respond(send_picture(get_picture(string, "search"), chatid))
 
-    #Ending lambda function because no triggers met. 
+    elif text.startswith('/pic'):
+        print("pic trigger hit")
+        string = text[5:]
+        try:
+            reply = search_db(string)
+            return respond(send_picture(reply, chatid))
+        except:
+            reply = "<b>Error:</b> Unable to find the name {} in database".format(string)
+            return respond(send_message(reply, chatid))
+
+    #Ending lambda function because no triggers met.
     return respond(print("Nothing triggered ending lambda call."))

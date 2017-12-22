@@ -1,6 +1,8 @@
 # Adding security keys
 apikey
 clientid
+ACCESS_KEY
+SECRET_KEY
 
 # Adding zip files
 
