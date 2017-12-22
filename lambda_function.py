@@ -22,12 +22,15 @@ def lambda_handler(event, context):
     #Grabbing Python dictonary event.body then converting to json
     body = json.loads(event['body'])
     #Grabbing json properties and storing to variables that are reused.
-    chatid = body['message']['chat']['id']
-    text = body['message']['text']
-    username = body['message']['from']['username']
-    messagedate = body['message']['date']
+    try:
+        chatid = body['message']['chat']['id']
+        text = body['message']['text']
+        username = body['message']['from']['username']
+        messagedate = body['message']['date']
+        messageid = body['message']['message_id']
 #Starting Main Script
-
+    except:
+        return respond(print("Unable to find key variables"))
     #Looking for JD and reply from trigger. It then looks at the time to see if a joke is required.
     try:
         if body['message']['reply_to_message'] != None and username == jd:
@@ -47,7 +50,7 @@ def lambda_handler(event, context):
         string = text[8:]
         image = get_picture(string, "random")
         if image.startswith('1.'):
-            reply = "Hit Error! \nError Type = {} \nSearch performed =  {}".format(image[2:], string)
+            reply = "<b>Error</b> = <i>{}</i> \n<b>Query</b> =  <i>{}</i> ".format(image[2:], string)
             print(reply)
             return respond(send_message(reply, chatid))
         else:
@@ -57,7 +60,7 @@ def lambda_handler(event, context):
         string = text[8:]
         image = get_picture(string, "search")
         if image.startswith('1.'):
-            reply = "Hit Error! \nError Type = {} \nSearch performed = {} \n".format(image[2:], string)
+            reply = "<b>Error</b> = <i>{}</i> \n<b>Query</b> = <i>{}</i> ".format(image[2:], string)
             print(reply)
             return respond(send_message(reply, chatid))
         else:

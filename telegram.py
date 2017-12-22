@@ -16,8 +16,11 @@ def api_call(url):
     content = response.content.decode("utf8")
     return content
 
-def send_message(text, chat_id):
-    url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
+def send_message(text, chat_id, reply_id=0):
+    if reply_id == 0:
+        url = URL + "sendMessage?text={}&chat_id={}&parse_mode=html".format(text, chat_id)
+    else:
+        url = URL + "sendMessage?text={}&chat_id={}&reply_to_message_id={}&parse_mode=html".format(text, chat_id, reply_id)
     api_call(url)
 
 def send_picture(photo, chat_id, reply_id=0):
