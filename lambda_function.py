@@ -1,45 +1,67 @@
-import boto3
 import json
+import boto3
 from telegram import *
 
-def respond(err, res=None):
+
+def respond(res):
+    print("hit lambda kill")
     return {
-        'statusCode': '400' if err else '200',
-        'body': err.message if err else json.dumps(res),
+        'statusCode': '200',
+        'body': json.dumps(res),
         'headers': {
             'Content-Type': 'application/json',
-        },
-    }
+            },
+        }
 
 
 def lambda_handler(event, context):
-    
-    JD = "GDude"
-    delay = 1
-    
-    body = json.loads(event['body'])
 
+#Setting Variables
+    jd = 'GDude'
+    delay = 1
+    #Grabbing Python dictonary event.body then converting to json
+    body = json.loads(event['body'])
+    #Grabbing json properties and storing to variables that are reused.
     chatid = body['message']['chat']['id']
     text = body['message']['text']
     username = body['message']['from']['username']
     messagedate = body['message']['date']
-    
-    if body['message']['reply_to_message']:
-        if username == JD:
-            replytime = body['message']['reply_to_message']['date']
-            dif = messagedate - replytime
+#Starting Main Script
+
+    #Looking for JD and reply from trigger. It then looks at the time to see if a joke is required.
+    try:
+        if body['message']['reply_to_message'] != None and username == jd:
+            dif = messagedate - body['message']['reply_to_message']['date']
             if dif / 60 > delay:
+            #Grabs the joke and formats with the Get_time function then sends back to the chatroom.
+                print("JD and time delay trigger hit")
                 reply = get_joke().replace("\n", "").format(get_time(dif))
-                #dif = get_time(dif)
-                respond(None, send_message(reply, chatid))
+                return respond(send_message(reply, chatid))
+            print("JD Trigger hit but time delay trigger missed")
+    except:
+        pass
 
-                
-        
+    #Looking for search or random triggers then sending an image with the request query.
+    if text.startswith('/random'):
+        print("random trigger hit")
+        string = text[8:]
+        image = get_picture(string, "random")
+        if image.startswith('1.'):
+            reply = "Hit Error! \nError Type = {} \nSearch performed =  {}".format(image[2:], string)
+            print(reply)
+            return respond(send_message(reply, chatid))
+        else:
+            return respond(send_picture(get_picture(string, "random"), chatid))
+    elif text.startswith('/search'):
+        print("search trigger hit")
+        string = text[8:]
+        image = get_picture(string, "search")
+        if image.startswith('1.'):
+            reply = "Hit Error! \nError Type = {} \nSearch performed = {} \n".format(image[2:], string)
+            print(reply)
+            return respond(send_message(reply, chatid))
+        else:
+            return respond(send_picture(get_picture(string, "search"), chatid))
 
-
-    #if token != expected_token:
-    #    logger.error("Request token (%s) does not match expected", token)
-    #    return respond(Exception('Invalid request token'))
-
-    return respond(None, "Nothing triggered ending lambda call.")
-    
+    #Ending lambda function because no triggers met. 
+    return respond(print("Nothing triggered ending lambda call."))

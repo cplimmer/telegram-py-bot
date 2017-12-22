@@ -1,7 +1,7 @@
 import json 
 import requests
 import boto3
-import urllib
+import urllib.parse
 import random
 
 
@@ -20,7 +20,7 @@ def send_message(text, chat_id):
     url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
     api_call(url)
 
-def send_picture(chat_id, photo, reply_id=0):
+def send_picture(photo, chat_id, reply_id=0):
     if reply_id == 0:
         url = URL + "sendPhoto?photo={}&chat_id={}".format(photo, chat_id)
     else:
@@ -105,7 +105,7 @@ def get_picture(query, type):
     #import api key.
     clientid = open("clientid").read()
     #convert query for url format.
-    query = urllib.quote_plus(query)
+    query = urllib.parse.quote(query)
     
     #check which type of query
     if type == "random":
@@ -113,12 +113,17 @@ def get_picture(query, type):
     elif type == "search":
         imgurl = imgurl + "gallery/search/?q=" + query
     else:
-        return "Invalid Type"
-        
+        errcode = "1. Invalid Search Type"
+        return errcode  
     
     data = requests.get(imgurl, headers={"Authorization" : "Client-ID {}".format(clientid)}).json()
-    value = random.choice(data["data"])
-    return json.dumps(value["link"]).replace('"', '')
+    try:
+        value = random.choice(data["data"])
+        return json.dumps(value["link"]).replace('"', '')
+    except:
+        errcode = "1. Unable to find image in {}, please try again.".format(type)
+        return errcode
+    
     
 def get_joke():
     jokes = open("jd.txt", "r")
