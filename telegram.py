@@ -29,9 +29,9 @@ def send_picture(chat_id, photo, reply_id=0):
 
 def get_time(timeS):
 
-    timeM = None
-    timeH = None
-    timeD = None
+    timeM = 0
+    timeH = 0
+    timeD = 0
     time = ""
 
     #get time in seconds and convert to minutes if over 60

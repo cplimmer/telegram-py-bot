@@ -17,14 +17,16 @@ def lambda_handler(event, context):
     JD = "GDude"
     delay = 1
     
-    chatid = event['body']['message']['chat']['id']
-    text = event['body']['message']['text']
-    username = event['body']['message']['from']['username']
-    messagedate = event['body']['message']['date']
+    body = json.loads(event['body'])
+
+    chatid = body['message']['chat']['id']
+    text = body['message']['text']
+    username = body['message']['from']['username']
+    messagedate = body['message']['date']
     
-    if event['body']['message']['reply_to_message']:
+    if body['message']['reply_to_message']:
         if username == JD:
-            replytime = event['body']['message']['reply_to_message']['date']
+            replytime = body['message']['reply_to_message']['date']
             dif = messagedate - replytime
             if dif / 60 > delay:
                 reply = get_joke().replace("\n", "").format(get_time(dif))
