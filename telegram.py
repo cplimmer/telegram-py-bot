@@ -2,7 +2,6 @@ import urllib.parse
 import random
 import json
 import requests
-import boto3
 
 APIKEY = open("apikey").read()
 
