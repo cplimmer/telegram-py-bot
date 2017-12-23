@@ -28,6 +28,7 @@ def api_call(url):
     return content
 
 def send_message(text, chat_id, reply_id=0):
+    text = urllib.parse.quote(text)
     """sending telegram message to use with text and chat_id as required params"""
     url = URL + "sendMessage?text={}&chat_id={}&parse_mode=html".format(text, chat_id)
     if reply_id != 0:
@@ -150,5 +151,20 @@ def search_db(name):
     response = table.query(
         KeyConditionExpression=Key('name').eq(name)
     )
-    url = random.choice(response['Items'])
-    return url['url']
+    try:
+        url = random.choice(response['Items'])
+        return url['url']
+    except:
+        pe = "#na"
+        ean = {"#na" : "name",}
+        response = table.scan(
+            ProjectionExpression=pe,
+            ExpressionAttributeNames=ean
+            )
+        names = []
+        for name in response['Items']:
+            names.append(name['name'])
+        uniquelist = set(names)
+        newresponse = list(uniquelist)
+        newresponse = "\n".join(newresponse)
+        return newresponse

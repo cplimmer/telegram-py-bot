@@ -69,11 +69,12 @@ def lambda_handler(event, context):
     elif text.startswith('/pic'):
         print("pic trigger hit")
         string = text[5:]
-        try:
-            reply = search_db(string)
+        dbcall = search_db(string)
+        if dbcall.startswith('http'):
+            reply = dbcall
             return respond(send_picture(reply, chatid))
-        except:
-            reply = "<b>Error:</b> Unable to find the name {} in database".format(string)
+        else:
+            reply = "<b>Unable to find {} in the database, try these names instead:</b>\n{}".format(string, dbcall)
             return respond(send_message(reply, chatid))
 
     #Ending lambda function because no triggers met.
