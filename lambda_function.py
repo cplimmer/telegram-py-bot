@@ -39,9 +39,22 @@ def lambda_handler(event, context):
 
         #Looking for /name switch inside of caption if it contains image
         if caption.startswith('/name'):
-            caption = caption[6:]
+            caption = caption[6:].lower()
+            #Checking to make sure the string is only alphabetic.
+            if caption.isalpha():
+                #Grab image url and upload to temp file
+                #take the temp file then upload to cloud files and return url
+                image_url = upload_image(get_file(file_id, caption), caption)
+                #Add picture to the database.
+                reply = add_db(caption, image_url)
+                if reply == 200:
+                    reply = "Image was added to database: {}".format(image_url)
+                    return respond(send_message(reply, chatid, reply_id=messageid))
+            else:
+                reply = "<b>Invalid caption, only letters are valid</b>"
+                return respond(send_message(reply, chatid))
     except:
-        pass   
+        pass
 
 
     #Looking for JD and reply from trigger. It then looks at the time to see if a joke is required.
