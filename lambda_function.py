@@ -31,7 +31,15 @@ def lambda_handler(event, context):
     except:
         return respond(print("Unable to find key variables"))
     #Starting Main Script
+    if text == "/commands" or "/command":
+        #Creating big text block to send to chat with the list of commands.
+        reply = ''' <b>/pic (name)</b> - return a random picture from the database with that name.
+        <b>/random (subreddit)</b> - return a random picture from subreddit if found.
+        <b>/search (anything)</b> - search for a picture using any phrase.
 
+        You can also upload a picture to the database. Send a picture to the chatroom using
+        <b>/name <name></b> as the caption.'''
+        return respond(send_message(reply, chatid, reply_id=messageid))
     #Testing to see if the message contains an image
     try:
         caption = body['message']['caption']
