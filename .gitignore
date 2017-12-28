@@ -3,6 +3,8 @@ apikey
 clientid
 ACCESS_KEY
 SECRET_KEY
+rkey
+
 
 # Adding zip files
 

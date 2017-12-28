@@ -3,7 +3,10 @@ import random
 import json
 import requests
 import boto3
+import uuid
 from boto3.dynamodb.conditions import Key, Attr
+from libcloud.storage.types import Provider
+from libcloud.storage.providers import get_driver
 
 ACCESS_KEY = open("ACCESS_KEY").read()
 SECRET_KEY = open("SECRET_KEY").read()
@@ -28,8 +31,8 @@ def api_call(url):
     return content
 
 def send_message(text, chat_id, reply_id=0):
-    text = urllib.parse.quote(text)
     """sending telegram message to use with text and chat_id as required params"""
+    text = urllib.parse.quote(text)
     url = URL + "sendMessage?text={}&chat_id={}&parse_mode=html".format(text, chat_id)
     if reply_id != 0:
         url = url + "&reply_to_message_id={}".format(reply_id)
@@ -41,6 +44,70 @@ def send_picture(photo, chat_id, reply_id=0):
     if reply_id != 0:
         url = url + "&reply_to_message_id={}".format(reply_id)
     api_call(url)
+
+def get_file(file_id, caption):
+    """using a fileid provided by telegram to grab the image"""
+    url = URL + "getFile?file_id={}".format(file_id)
+    fileurl = json.loads(api_call(url))
+    url = "https://api.telegram.org/file/bot{}/".format(APIKEY)
+    url = url + fileurl['result']['file_path']
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open("/tmp/{}.jpg".format(caption), 'wb') as f:
+            f.write(response.content)
+    #Returning temp path to uploaded file
+    return "/tmp/{}.jpg".format(caption)
+
+def get_raxkey():
+    """Function to grab rax access token id and tenant_id. Then stores them as a dictionary."""
+    rkey = open("rkey").read()
+    url = 'https://identity.api.rackspacecloud.com/v2.0/tokens'
+
+
+    payload = {
+        "auth" : {
+            "RAX-KSKEY:apiKeyCredentials" : {
+                "username" : "cplimmer",
+                "apiKey" : rkey
+            }
+        }
+    }
+    headers = {
+        "Content-Type" : "application/json"
+    }
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
+
+    response = json.loads(response.content)
+    token_id = response['access']['token']['id']
+    tenant_id = response['access']['token']['tenant']['id']
+
+    return {'token_id' : token_id, 'tenant_id' : tenant_id}
+
+def upload_image(path, name):
+    """Function to upload image to cloudfiles"""
+
+    rkey = open("rkey").read()
+
+    cls = get_driver(Provider.CLOUDFILES)
+
+    driver = cls('cplimmer', rkey, region='iad')
+
+    container = driver.get_container(container_name='pics')
+
+    objectname = name + str(uuid.uuid4())[0:4] + '.jpg'
+
+    try:
+        with open(path, 'rb') as iterator:
+            obj = driver.upload_object_via_stream(iterator=iterator,
+                                                  container=container,
+                                                  object_name=objectname)
+    except:
+        pass
+
+    url = "http://45bee749b9633e0cdbef-8f80b823ed0636b36ed6366a0c590e0e.r54.cf5.rackcdn.com/" + objectname
+    return url
+
+
 
 def get_time(timeS):
     """takes time in seconds and converts to string format to send via telegram"""
@@ -140,12 +207,15 @@ def get_picture(query, type):
         return errcode
 
 def get_joke():
+    """Grab random joke from JD joke file"""
     jokes = open("jd.txt", "r")
     jokes = jokes.readlines()
     return random.choice(jokes)
 
 def search_db(name):
     """search dynamodb for any records with the name that matches, grab random one and return"""
+    #Making name lowercase to match db standards
+    name = name.lower()
     dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.Table('pictures')
     response = table.query(
@@ -168,3 +238,24 @@ def search_db(name):
         newresponse = list(uniquelist)
         newresponse = "\n".join(newresponse)
         return newresponse
+
+def add_db(name, url):
+    """adds picture to database with url name as the key pair value"""
+    #Checking to make sure the string is only alphabetic.
+    if name.isalpha() is not True:
+        return "1. Name contains invalid characters"
+    #Making name lowercase to match db standards
+    if url.startswith('http') is True or url.startswith('www') is True:
+        pass
+    else:
+        return '1. URL appears to be invalid, try again'
+    name = name.lower()
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    table = dynamodb.Table('pictures')
+    response = table.put_item(
+        Item={
+            'name' : name,
+            'url' : url
+        }
+    )
+    return response['ResponseMetadata']['HTTPStatusCode']

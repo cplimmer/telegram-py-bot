@@ -3,6 +3,7 @@ from telegram import *
 
 
 def respond(res):
+    """Function to end lambda call and return ok message to API Gateway"""
     print("hit lambda kill")
     return {
         'statusCode': '200',
@@ -14,7 +15,7 @@ def respond(res):
 
 
 def lambda_handler(event, context):
-
+    """Main lambda function"""
 #Setting Variables
     jd = 'GDude'
     delay = 1
@@ -27,9 +28,22 @@ def lambda_handler(event, context):
         username = body['message']['from']['username']
         messagedate = body['message']['date']
         messageid = body['message']['message_id']
-#Starting Main Script
     except:
         return respond(print("Unable to find key variables"))
+    #Starting Main Script
+
+    #Testing to see if the message contains an image
+    try:
+        caption = body['message']['caption']
+        file_id = body['message']['photo'][2]['file_id']
+
+        #Looking for /name switch inside of caption if it contains image
+        if caption.startswith('/name'):
+            caption = caption[6:]
+    except:
+        pass   
+
+
     #Looking for JD and reply from trigger. It then looks at the time to see if a joke is required.
     try:
         if body['message']['reply_to_message'] != None and username == jd:
